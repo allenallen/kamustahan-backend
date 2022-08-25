@@ -31,6 +31,12 @@ public class CategoryController {
         return categoryRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    @TrackExecutionTime
+    public Category getOne(@PathVariable Long id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
     @PostMapping("/")
     @TrackExecutionTime
     public ResponseEntity<Category> create(@Valid @RequestBody Category category) throws URISyntaxException {

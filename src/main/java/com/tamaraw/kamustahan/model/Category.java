@@ -1,8 +1,6 @@
 package com.tamaraw.kamustahan.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Category {
@@ -12,6 +10,9 @@ public class Category {
     private Long id;
 
     private String name;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private WebUser createdBy;
 
     public Category(String name) {
         this.name = name;
@@ -33,5 +34,13 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public WebUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(WebUser createdBy) {
+        this.createdBy = createdBy;
     }
 }
