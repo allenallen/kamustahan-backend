@@ -32,4 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
+<<<<<<< HEAD
 .env
+=======
+!**/src/main/resources/
+>>>>>>> b3e3434ff183dbb7a97199b0ebc95777d4242046
