@@ -1,18 +1,27 @@
 package com.tamaraw.kamustahan.controller;
 
 import com.tamaraw.kamustahan.model.Category;
+import com.tamaraw.kamustahan.model.WebUser;
 import com.tamaraw.kamustahan.repository.CategoryRepository;
+import com.tamaraw.kamustahan.repository.WebUserRepository;
 import com.tamaraw.kamustahan.utils.TrackExecutionTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/category")
@@ -25,10 +34,24 @@ public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private WebUserRepository webUserRepository;
+
     @GetMapping(value = {"/", ""})
     @TrackExecutionTime
     public List<Category> getAll() {
         return categoryRepository.findAll();
+    }
+
+    @GetMapping("/user")
+    @TrackExecutionTime
+    public List<Category> getByUser(Principal principal) {
+        Optional<WebUser> webUser = webUserRepository.findById(principal.getName());
+        if (webUser.isPresent()) {
+            return categoryRepository.findAllByCreatedBy(webUser.get());
+        }
+
+        return new ArrayList<>();
     }
 
     @GetMapping("/{id}")
@@ -39,7 +62,15 @@ public class CategoryController {
 
     @PostMapping("/")
     @TrackExecutionTime
-    public ResponseEntity<Category> create(@Valid @RequestBody Category category) throws URISyntaxException {
+    public ResponseEntity<Category> create(@Valid @RequestBody Category category, @AuthenticationPrincipal OAuth2User principal) throws URISyntaxException {
+        Map<String, Object> userDetails = principal.getAttributes();
+        String userId = userDetails.get("sub").toString();
+        Optional<WebUser> webUser = webUserRepository.findById(userId);
+
+        category.setCreatedBy(webUser.orElse(
+                new WebUser(userId, userDetails.get("name").toString(), userDetails.get("email").toString())
+        ));
+
         Category created = categoryRepository.save(category);
         return ResponseEntity.created(new URI(API_URL + created.getId())).body(created);
     }

@@ -8,25 +8,25 @@ import javax.persistence.Id;
 public class WebUser {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
 
     private String username;
 
     private String email;
 
-    public WebUser(String username, String email) {
+    public WebUser(String id, String username, String email) {
         this.username = username;
         this.email = email;
+        this.id = id;
     }
 
     protected WebUser() {}
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
