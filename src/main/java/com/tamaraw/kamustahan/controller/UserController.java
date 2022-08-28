@@ -1,5 +1,6 @@
 package com.tamaraw.kamustahan.controller;
 
+import com.tamaraw.kamustahan.utils.TrackExecutionTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,16 +25,19 @@ public class UserController {
         this.clientRegistration = registrations.findByRegistrationId("okta");
     }
 
-    @GetMapping("/api/v1/user")
+    @GetMapping("api/v1/user")
+    @TrackExecutionTime
     public ResponseEntity<?> getUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
         if (oAuth2User == null) {
             return new ResponseEntity<>("", HttpStatus.OK);
         } else {
+            System.out.println(oAuth2User);
             return ResponseEntity.ok().body(oAuth2User.getAttributes());
         }
     }
 
-    @PostMapping("/api/v1/logout")
+    @PostMapping("api/v1/logout")
+    @TrackExecutionTime
     public ResponseEntity<?> logout(HttpServletRequest request, @AuthenticationPrincipal(expression = "idToken") OidcIdToken idToken) {
         String logoutUrl = this.clientRegistration.getProviderDetails().getConfigurationMetadata()
                 .get("end_session_endpoint").toString();
